@@ -34,51 +34,51 @@
 
 class ParameterWidget : public QWidget, public Ui::ParameterWidget, public ParameterExtractor, public ParameterSet
 {
-	Q_OBJECT
+  Q_OBJECT
 private:
-	struct groupInst {
-		std::vector<std::string> parameterVector;
-		bool show;
-		bool inList;
-	};
-	std::vector<std::string> groupPos;
-	typedef std::map<std::string,groupInst > group_map;
-	group_map groupMap;
-	QTimer autoPreviewTimer;
-	int descriptionShow;
-	std::string jsonFile;
-	bool anyfocused;
-	ParameterVirtualWidget *entryToFocus;
+  struct groupInst {
+    std::vector<std::string> parameterVector;
+    bool show;
+    bool inList;
+  };
+  std::vector<std::string> groupPos;
+  typedef std::map<std::string, groupInst> group_map;
+  group_map groupMap;
+  QTimer autoPreviewTimer;
+  int descriptionShow;
+  std::string jsonFile;
+  bool anyfocused;
+  ParameterVirtualWidget *entryToFocus;
 
-	void connectWidget();
-	void updateWidget();
-	void cleanScrollArea();
-	void addEntry(QVBoxLayout* anylayout, ParameterVirtualWidget *entry);
-	void clear();
-	ParameterVirtualWidget* CreateParameterWidget(std::string parameterName);
-	void setComboBoxPresetForSet();
+  void connectWidget();
+  void updateWidget();
+  void cleanScrollArea();
+  void addEntry(QVBoxLayout *anylayout, ParameterVirtualWidget *entry);
+  void clear();
+  ParameterVirtualWidget *CreateParameterWidget(std::string parameterName);
+  void setComboBoxPresetForSet();
 
 public:
-	ParameterWidget(QWidget *parent = 0);
-	virtual ~ParameterWidget();
-	void readFile(QString scadFile);
-	void writeFileIfNotEmpty(QString scadFile);
+  ParameterWidget(QWidget *parent = 0);
+  virtual ~ParameterWidget();
+  void readFile(QString scadFile);
+  void writeFileIfNotEmpty(QString scadFile);
 
 protected slots:
-	void onValueChanged();
-	void onPreviewTimerElapsed();
-	void onDescriptionShow();
-	void onSetChanged(int idx);
-	void onSetAdd();
-	void onSetSaveButton();
-	void onSetDelete();
-	void resetParameter();
+  void onValueChanged();
+  void onPreviewTimerElapsed();
+  void onDescriptionShow();
+  void onSetChanged(int idx);
+  void onSetAdd();
+  void onSetSaveButton();
+  void onSetDelete();
+  void resetParameter();
 
 signals:
-	void previewRequested(bool rebuildParameterUI=true);
+  void previewRequested(bool rebuildParameterUI = true);
 
 protected:
-	void applyParameterSet(std::string setName);
-	void updateParameterSet(std::string setName);
+  void applyParameterSet(std::string setName);
+  void updateParameterSet(std::string setName);
 };
 

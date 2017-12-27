@@ -45,69 +45,70 @@ namespace fs = boost::filesystem;
 class OffsetModule : public AbstractModule
 {
 public:
-	OffsetModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+  OffsetModule() { }
+  virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
 };
 
 AbstractNode *OffsetModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
 {
-	auto node = new OffsetNode(inst);
+  auto node = new OffsetNode(inst);
 
-	AssignmentList args{Assignment("r")};
+  AssignmentList args{Assignment("r")};
 
-	Context c(ctx);
-	c.setVariables(args, evalctx);
-	inst->scope.apply(*evalctx);
+  Context c(ctx);
+  c.setVariables(args, evalctx);
+  inst->scope.apply(*evalctx);
 
-	node->fn = c.lookup_variable("$fn")->toDouble();
-	node->fs = c.lookup_variable("$fs")->toDouble();
-	node->fa = c.lookup_variable("$fa")->toDouble();
+  node->fn = c.lookup_variable("$fn")->toDouble();
+  node->fs = c.lookup_variable("$fs")->toDouble();
+  node->fa = c.lookup_variable("$fa")->toDouble();
 
-	// default with no argument at all is (r = 1, chamfer = false)
-	// radius takes precedence if both r and delta are given.
-	node->delta = 1;
-	node->chamfer = false;
-	node->join_type = ClipperLib::jtRound;
-	const auto r = c.lookup_variable("r", true);
-	const auto delta = c.lookup_variable("delta", true);
-	const auto chamfer = c.lookup_variable("chamfer", true);
-	
-	if (r->isDefinedAs(Value::ValueType::NUMBER)) {
-		r->getDouble(node->delta);
-	} else if (delta->isDefinedAs(Value::ValueType::NUMBER)) {
-		delta->getDouble(node->delta);
-		node->join_type = ClipperLib::jtMiter;
-		if (chamfer->isDefinedAs(Value::ValueType::BOOL) && chamfer->toBool()) {
-			node->chamfer = true;
-			node->join_type = ClipperLib::jtSquare;
-		}
-	}
-	
-	auto instantiatednodes = inst->instantiateChildren(evalctx);
-	node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
+  // default with no argument at all is (r = 1, chamfer = false)
+  // radius takes precedence if both r and delta are given.
+  node->delta = 1;
+  node->chamfer = false;
+  node->join_type = ClipperLib::jtRound;
+  const auto r = c.lookup_variable("r", true);
+  const auto delta = c.lookup_variable("delta", true);
+  const auto chamfer = c.lookup_variable("chamfer", true);
 
-	return node;
+  if (r->isDefinedAs(Value::ValueType::NUMBER)) {
+    r->getDouble(node->delta);
+  }
+  else if (delta->isDefinedAs(Value::ValueType::NUMBER)) {
+    delta->getDouble(node->delta);
+    node->join_type = ClipperLib::jtMiter;
+    if (chamfer->isDefinedAs(Value::ValueType::BOOL) && chamfer->toBool()) {
+      node->chamfer = true;
+      node->join_type = ClipperLib::jtSquare;
+    }
+  }
+
+  auto instantiatednodes = inst->instantiateChildren(evalctx);
+  node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
+
+  return node;
 }
 
 std::string OffsetNode::toString() const
 {
-	std::stringstream stream;
+  std::stringstream stream;
 
-	bool isRadius = this->join_type == ClipperLib::jtRound;
-	auto var = isRadius ? "(r = " : "(delta = ";
+  bool isRadius = this->join_type == ClipperLib::jtRound;
+  auto var = isRadius ? "(r = " : "(delta = ";
 
-	stream  << this->name() << var << std::dec << this->delta;
-	if (!isRadius) {
-	    stream << ", chamfer = " << (this->chamfer ? "true" : "false");
-	}
-	stream  << ", $fn = " << this->fn
-		<< ", $fa = " << this->fa
-		<< ", $fs = " << this->fs << ")";
+  stream << this->name() << var << std::dec << this->delta;
+  if (!isRadius) {
+    stream << ", chamfer = " << (this->chamfer ? "true" : "false");
+  }
+  stream << ", $fn = " << this->fn
+         << ", $fa = " << this->fa
+         << ", $fs = " << this->fs << ")";
 
-	return stream.str();
+  return stream.str();
 }
 
 void register_builtin_offset()
 {
-	Builtins::init("offset", new OffsetModule());
+  Builtins::init("offset", new OffsetModule());
 }

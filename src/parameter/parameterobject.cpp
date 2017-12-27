@@ -12,7 +12,7 @@ void ParameterObject::applyParameter(Assignment &assignment)
 {
   ModuleContext ctx;
   const ValuePtr defaultValue = assignment.expr->evaluate(&ctx);
-  
+
   if (defaultValue->type() == dvt) {
     assignment.expr = shared_ptr<Expression>(new Literal(value));
   }
@@ -25,23 +25,28 @@ int ParameterObject::setValue(const class ValuePtr defaultValue, const class Val
   this->defaultValue = defaultValue;
   this->vt = values->type();
   this->dvt = defaultValue->type();
- 
-  bool makerBotMax = (vt == Value::ValueType::VECTOR && values->toVector().size() == 1 && values->toVector()[0]->toVector().size() ==0); // [max] format from makerbot customizer
+
+  bool makerBotMax = (vt == Value::ValueType::VECTOR && values->toVector().size() == 1 && values->toVector()[0]->toVector().size() == 0); // [max] format from makerbot customizer
 
   if (dvt == Value::ValueType::BOOL) {
     target = CHECKBOX;
-  } else if ((dvt == Value::ValueType::VECTOR) && (defaultValue->toVector().size() <= 4)) {
+  }
+  else if ((dvt == Value::ValueType::VECTOR) && (defaultValue->toVector().size() <= 4)) {
     target = checkVectorWidget();
-  } else if ((vt == Value::ValueType::RANGE || makerBotMax) && (dvt == Value::ValueType::NUMBER)) {
+  }
+  else if ((vt == Value::ValueType::RANGE || makerBotMax) && (dvt == Value::ValueType::NUMBER)) {
     target = SLIDER;
-  } else if ((vt == Value::ValueType::VECTOR) && ((dvt == Value::ValueType::NUMBER) || (dvt == Value::ValueType::STRING))) {
+  }
+  else if ((vt == Value::ValueType::VECTOR) && ((dvt == Value::ValueType::NUMBER) || (dvt == Value::ValueType::STRING))) {
     target = COMBOBOX;
-  } else if (dvt == Value::ValueType::NUMBER) {
+  }
+  else if (dvt == Value::ValueType::NUMBER) {
     target = NUMBER;
-  } else {
+  }
+  else {
     target = TEXT;
   }
-  
+
   return target;
 }
 
@@ -56,32 +61,33 @@ void ParameterObject::setAssignment(Context *ctx, const Assignment *assignment, 
   if (desc) {
     const ValuePtr v = desc->evaluate(ctx);
     if (v->type() == Value::ValueType::STRING) {
-      description=QString::fromStdString(v->toString());
+      description = QString::fromStdString(v->toString());
     }
   }
-  
+
   const Annotation *group = assignment->annotation("Group");
   if (group) {
     const ValuePtr v = group->evaluate(ctx);
     if (v->type() == Value::ValueType::STRING) {
-      groupName=v->toString();
+      groupName = v->toString();
     }
-  } else {
-    groupName="Parameters";
+  }
+  else {
+    groupName = "Parameters";
   }
 }
 
-bool ParameterObject::operator == (const ParameterObject &second)
+bool ParameterObject::operator==(const ParameterObject &second)
 {
-  return (this->defaultValue == second.defaultValue && this->values==second.values &&
+  return (this->defaultValue == second.defaultValue && this->values == second.values &&
           this->description == second.description && this->groupName == second.groupName);
 }
 
 ParameterObject::parameter_type_t ParameterObject::checkVectorWidget()
 {
   Value::VectorType vec = defaultValue->toVector();
-  if(vec.size()==0) return TEXT;
-  for (unsigned int i = 0;i < vec.size();i++) {
+  if (vec.size() == 0) return TEXT;
+  for (unsigned int i = 0; i < vec.size(); i++) {
     if (vec[i]->type() != Value::ValueType::NUMBER) {
       return TEXT;
     }

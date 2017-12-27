@@ -53,9 +53,9 @@
 
 QGLView::QGLView(QWidget *parent) :
 #ifdef USE_QOPENGLWIDGET
-	QOpenGLWidget(parent)
+  QOpenGLWidget(parent)
 #else
-	QGLWidget(parent)
+  QGLWidget(parent)
 #endif
 {
   init();
@@ -81,23 +81,22 @@ void QGLView::init()
 #include <windows.h>
   HMODULE hntdll = GetModuleHandle(L"ntdll.dll");
   if (hntdll)
-    if ( (void *)GetProcAddress(hntdll, "wine_get_version") )
-      running_under_wine = true;
+    if ( (void *)GetProcAddress(hntdll, "wine_get_version") ) running_under_wine = true;
 #endif
 }
 
 void QGLView::resetView()
 {
-	cam.resetView();
+  cam.resetView();
 }
 
 void QGLView::viewAll()
 {
-	if (auto renderer = this->getRenderer()) {
-		auto bbox = renderer->getBoundingBox();
-		cam.object_trans = -bbox.center();
-		cam.viewAll(renderer->getBoundingBox());
-	}
+  if (auto renderer = this->getRenderer()) {
+    auto bbox = renderer->getBoundingBox();
+    cam.object_trans = -bbox.center();
+    cam.viewAll(renderer->getBoundingBox());
+  }
 }
 
 void QGLView::initializeGL()
@@ -127,7 +126,7 @@ std::string QGLView::getRendererInfo() const
     rbits % gbits % bbits % abits % dbits % sbits;
 #else
   info << "\nQt graphics widget: QGLWidget";
-#endif
+#endif // ifdef USE_QOPENGLWIDGET
   info << glew_extensions_dump();
   return info.str();
 }
@@ -135,14 +134,14 @@ std::string QGLView::getRendererInfo() const
 #ifdef ENABLE_OPENCSG
 void QGLView::display_opencsg_warning()
 {
-	if (Preferences::inst()->getValue("advanced/opencsg_show_warning").toBool()) {
-		QTimer::singleShot(0, this, SLOT(display_opencsg_warning_dialog()));
-	}
+  if (Preferences::inst()->getValue("advanced/opencsg_show_warning").toBool()) {
+    QTimer::singleShot(0, this, SLOT(display_opencsg_warning_dialog()));
+  }
 }
 
 void QGLView::display_opencsg_warning_dialog()
 {
-	auto dialog = new OpenCSGWarningDialog(this);
+  auto dialog = new OpenCSGWarningDialog(this);
 
   QString message;
   if (this->is_opencsg_capable) {
@@ -153,13 +152,13 @@ void QGLView::display_opencsg_warning_dialog()
     dialog->enableOpenCSGBox->hide();
   }
   message += _("It is highly recommended to use OpenSCAD on a system with "
-							 "OpenGL 2.0 or later.\n"
-							 "Your renderer information is as follows:\n");
+               "OpenGL 2.0 or later.\n"
+               "Your renderer information is as follows:\n");
   QString rendererinfo(_("GLEW version %1\n%2 (%3)\nOpenGL version %4\n"));
   message += rendererinfo.arg((const char *)glewGetString(GLEW_VERSION),
-															(const char *)glGetString(GL_RENDERER),
-															(const char *)glGetString(GL_VENDOR),
-															(const char *)glGetString(GL_VERSION));
+                              (const char *)glGetString(GL_RENDERER),
+                              (const char *)glGetString(GL_VENDOR),
+                              (const char *)glGetString(GL_VERSION));
 
   dialog->setText(message);
   dialog->enableOpenCSGBox->setChecked(Preferences::inst()->getValue("advanced/enable_opencsg_opengl1x").toBool());
@@ -167,11 +166,11 @@ void QGLView::display_opencsg_warning_dialog()
 
   opencsg_support = this->is_opencsg_capable && Preferences::inst()->getValue("advanced/enable_opencsg_opengl1x").toBool();
 }
-#endif
+#endif // ifdef ENABLE_OPENCSG
 
 void QGLView::resizeGL(int w, int h)
 {
-  GLView::resizeGL(w,h);
+  GLView::resizeGL(w, h);
 }
 
 void QGLView::paintGL()
@@ -181,10 +180,10 @@ void QGLView::paintGL()
   if (statusLabel) {
     Camera nc(cam);
     nc.gimbalDefaultTranslate();
-		auto status = QString("%1 (%2x%3)")
-			.arg(QString::fromStdString(nc.statusText()))
-			.arg(size().rwidth())
-			.arg(size().rheight());
+    auto status = QString("%1 (%2x%3)")
+      .arg(QString::fromStdString(nc.statusText()))
+      .arg(size().rwidth())
+      .arg(size().rheight());
     statusLabel->setText(status);
   }
 
@@ -199,46 +198,46 @@ void QGLView::mousePressEvent(QMouseEvent *event)
   last_mouse = event->globalPos();
 }
 
-void QGLView::mouseDoubleClickEvent (QMouseEvent *event) {
+void QGLView::mouseDoubleClickEvent(QMouseEvent *event) {
 
-	setupCamera();
+  setupCamera();
 
-	int viewport[4];
-	GLdouble modelview[16];
-	GLdouble projection[16];
+  int viewport[4];
+  GLdouble modelview[16];
+  GLdouble projection[16];
 
-	glGetIntegerv( GL_VIEWPORT, viewport);
-	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+  glGetDoublev(GL_PROJECTION_MATRIX, projection);
 
-	double x = event->pos().x() * this->getDPI();
-	double y = viewport[3] - event->pos().y() * this->getDPI();
-	GLfloat z = 0;
+  double x = event->pos().x() * this->getDPI();
+  double y = viewport[3] - event->pos().y() * this->getDPI();
+  GLfloat z = 0;
 
-	glGetError(); // clear error state so we don't pick up previous errors
-	glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-	auto glError = glGetError();
-	if (glError != GL_NO_ERROR) {
-		return;
-	}
+  glGetError(); // clear error state so we don't pick up previous errors
+  glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+  auto glError = glGetError();
+  if (glError != GL_NO_ERROR) {
+    return;
+  }
 
-	if (z == 1) return; // outside object
+  if (z == 1) return; // outside object
 
-	GLdouble px, py, pz;
+  GLdouble px, py, pz;
 
-	auto success = gluUnProject(x, y, z, modelview, projection, viewport, &px, &py, &pz);
+  auto success = gluUnProject(x, y, z, modelview, projection, viewport, &px, &py, &pz);
 
-	if (success == GL_TRUE) {
-		cam.object_trans -= Vector3d(px, py, pz);
-		updateGL();
-		emit doAnimateUpdate();
-	}
+  if (success == GL_TRUE) {
+    cam.object_trans -= Vector3d(px, py, pz);
+    updateGL();
+    emit doAnimateUpdate();
+  }
 }
 
-void QGLView::normalizeAngle(GLdouble& angle)
+void QGLView::normalizeAngle(GLdouble &angle)
 {
-  while(angle < 0) angle += 360;
-  while(angle > 360) angle -= 360;
+  while (angle < 0) angle += 360;
+  while (angle > 360) angle -= 360;
 }
 
 void QGLView::mouseMoveEvent(QMouseEvent *event)
@@ -251,65 +250,67 @@ void QGLView::mouseMoveEvent(QMouseEvent *event)
 #ifdef Q_OS_MAC
         && !(event->modifiers() & Qt::MetaModifier)
 #endif
-      ) {
+        ) {
       // Left button rotates in xz, Shift-left rotates in xy
       // On Mac, Ctrl-Left is handled as right button on other platforms
       cam.object_rot.x() += dy;
       if ((QApplication::keyboardModifiers() & Qt::ShiftModifier) != 0) {
         cam.object_rot.y() += dx;
-			}
+      }
       else {
         cam.object_rot.z() += dx;
-			}
+      }
 
       normalizeAngle(cam.object_rot.x());
       normalizeAngle(cam.object_rot.y());
       normalizeAngle(cam.object_rot.z());
-    } else {
+    }
+    else {
       // Right button pans in the xz plane
       // Middle button pans in the xy plane
       // Shift-right and Shift-middle zooms
       if ((QApplication::keyboardModifiers() & Qt::ShiftModifier) != 0) {
-	      cam.zoom(-12.0 * dy);
-      } else {
-
-      double mx = +(dx) * 3.0 * cam.zoomValue() / QWidget::width();
-      double mz = -(dy) * 3.0 * cam.zoomValue() / QWidget::height();
-
-      double my = 0;
-#if (QT_VERSION < QT_VERSION_CHECK(4, 7, 0))
-      if (event->buttons() & Qt::MidButton) {
-#else
-      if (event->buttons() & Qt::MiddleButton) {
-#endif
-        my = mz;
-        mz = 0;
-        // actually lock the x-position
-        // (turns out to be easier to use than xy panning)
-        mx = 0;
+        cam.zoom(-12.0 * dy);
       }
+      else {
 
-      Matrix3d aax, aay, aaz;
-      aax = Eigen::AngleAxisd(-(cam.object_rot.x()/180) * M_PI, Vector3d::UnitX());
-      aay = Eigen::AngleAxisd(-(cam.object_rot.y()/180) * M_PI, Vector3d::UnitY());
-      aaz = Eigen::AngleAxisd(-(cam.object_rot.z()/180) * M_PI, Vector3d::UnitZ());
-      Matrix3d tm3 = Matrix3d::Identity();
-      tm3 = aaz * (aay * (aax * tm3));
+        double mx = +(dx) * 3.0 * cam.zoomValue() / QWidget::width();
+        double mz = -(dy) * 3.0 * cam.zoomValue() / QWidget::height();
 
-      Matrix4d tm = Matrix4d::Identity();
-      for (int i=0;i<3;i++) for (int j=0;j<3;j++) tm(j,i) = tm3(j,i);
+        double my = 0;
+#if (QT_VERSION < QT_VERSION_CHECK(4, 7, 0))
+        if (event->buttons() & Qt::MidButton) {
+#else
+        if (event->buttons() & Qt::MiddleButton) {
+#endif
+          my = mz;
+          mz = 0;
+          // actually lock the x-position
+          // (turns out to be easier to use than xy panning)
+          mx = 0;
+        }
 
-      Matrix4d vec;
-      vec <<
-        0,  0,  0,  mx,
-        0,  0,  0,  my,
-        0,  0,  0,  mz,
-        0,  0,  0,  1
-      ;
-      tm = tm * vec;
-      cam.object_trans.x() += tm(0,3);
-      cam.object_trans.y() += tm(1,3);
-      cam.object_trans.z() += tm(2,3);
+        Matrix3d aax, aay, aaz;
+        aax = Eigen::AngleAxisd(-(cam.object_rot.x() / 180) * M_PI, Vector3d::UnitX());
+        aay = Eigen::AngleAxisd(-(cam.object_rot.y() / 180) * M_PI, Vector3d::UnitY());
+        aaz = Eigen::AngleAxisd(-(cam.object_rot.z() / 180) * M_PI, Vector3d::UnitZ());
+        Matrix3d tm3 = Matrix3d::Identity();
+        tm3 = aaz * (aay * (aax * tm3));
+
+        Matrix4d tm = Matrix4d::Identity();
+        for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) tm(j, i) = tm3(j, i);
+
+        Matrix4d vec;
+        vec <<
+          0,  0,  0,  mx,
+          0,  0,  0,  my,
+          0,  0,  0,  mz,
+          0,  0,  0,  1
+        ;
+        tm = tm * vec;
+        cam.object_trans.x() += tm(0, 3);
+        cam.object_trans.y() += tm(1, 3);
+        cam.object_trans.z() += tm(2, 3);
       }
     }
     updateGL();
@@ -318,18 +319,18 @@ void QGLView::mouseMoveEvent(QMouseEvent *event)
   last_mouse = this_mouse;
 }
 
-void QGLView::mouseReleaseEvent(QMouseEvent*)
+void QGLView::mouseReleaseEvent(QMouseEvent *)
 {
   mouse_drag_active = false;
   releaseMouse();
 }
 
-const QImage & QGLView::grabFrame()
+const QImage &QGLView::grabFrame()
 {
-	// Force reading from front buffer. Some configurations will read from the back buffer here.
-	glReadBuffer(GL_FRONT);
-	this->frame = grabFrameBuffer();
-	return this->frame;
+  // Force reading from front buffer. Some configurations will read from the back buffer here.
+  glReadBuffer(GL_FRONT);
+  this->frame = grabFrameBuffer();
+  return this->frame;
 }
 
 bool QGLView::save(const char *filename)
@@ -340,9 +341,9 @@ bool QGLView::save(const char *filename)
 void QGLView::wheelEvent(QWheelEvent *event)
 {
 #if QT_VERSION >= 0x050000
-	this->cam.zoom(event->angleDelta().y());
+  this->cam.zoom(event->angleDelta().y());
 #else
-	this->cam.zoom(event->delta());
+  this->cam.zoom(event->delta());
 #endif
   updateGL();
 }
@@ -361,6 +362,6 @@ void QGLView::ZoomOut(void)
 
 void QGLView::setOrthoMode(bool enabled)
 {
-	if (enabled) this->cam.setProjection(Camera::ProjectionType::ORTHOGONAL);
-	else this->cam.setProjection(Camera::ProjectionType::PERSPECTIVE);
+  if (enabled) this->cam.setProjection(Camera::ProjectionType::ORTHOGONAL);
+  else this->cam.setProjection(Camera::ProjectionType::PERSPECTIVE);
 }

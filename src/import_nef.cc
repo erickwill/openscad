@@ -8,17 +8,17 @@
 
 CGAL_Nef_polyhedron *import_nef3(const std::string &filename)
 {
-	CGAL_Nef_polyhedron *N = new CGAL_Nef_polyhedron;
+  CGAL_Nef_polyhedron *N = new CGAL_Nef_polyhedron;
 
-	// Open file and position at the end
-	std::ifstream f(filename.c_str(), std::ios::in | std::ios::binary);
-	if (!f.good()) {
-		PRINTB("WARNING: Can't open import file '%s'.", filename);
-		return N;
-	}
+  // Open file and position at the end
+  std::ifstream f(filename.c_str(), std::ios::in | std::ios::binary);
+  if (!f.good()) {
+    PRINTB("WARNING: Can't open import file '%s'.", filename);
+    return N;
+  }
 
-	N->p3.reset(new CGAL_Nef_polyhedron3);
-	f >> *(N->p3);
-	return N;
+  N->p3.reset(new CGAL_Nef_polyhedron3);
+  f >> *(N->p3);
+  return N;
 }
-#endif
+#endif // ifdef ENABLE_CGAL

@@ -29,18 +29,18 @@
 
 void Assignment::addAnnotations(AnnotationList *annotations)
 {
-	for (auto &annotation : *annotations) {
-		this->annotations.insert({annotation.getName(), &annotation});
-	}
+  for (auto &annotation : *annotations) {
+    this->annotations.insert({annotation.getName(), &annotation});
+  }
 }
 
 bool Assignment::hasAnnotations() const
 {
-	return !annotations.empty();
+  return !annotations.empty();
 }
 
-const Annotation * Assignment::annotation(const std::string &name) const
+const Annotation *Assignment::annotation(const std::string &name) const
 {
-	auto found = annotations.find(name);
-	return found == annotations.end() ? nullptr : found->second;
+  auto found = annotations.find(name);
+  return found == annotations.end() ? nullptr : found->second;
 }

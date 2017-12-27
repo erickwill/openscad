@@ -5,15 +5,15 @@
 
 class WindowManager : public QObject
 {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	WindowManager();
-	virtual ~WindowManager();
-	
-	void add(class MainWindow *mainwin);
-	void remove(class MainWindow *mainwin);
-	const QSet<MainWindow*> &getWindows() const;
+  WindowManager();
+  virtual ~WindowManager();
+
+  void add(class MainWindow *mainwin);
+  void remove(class MainWindow *mainwin);
+  const QSet<MainWindow *> &getWindows() const;
 private:
-	QSet<MainWindow*> windows;
+  QSet<MainWindow *> windows;
 };

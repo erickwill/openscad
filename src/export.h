@@ -6,17 +6,17 @@
 #include "memory.h"
 
 enum class FileFormat {
-	STL,
-	OFF,
-	AMF,
-	DXF,
-	SVG,
-	NEFDBG,
-	NEF3
+  STL,
+  OFF,
+  AMF,
+  DXF,
+  SVG,
+  NEFDBG,
+  NEF3
 };
 
 void exportFileByName(const shared_ptr<const class Geometry> &root_geom, FileFormat format,
-											const char *name2open, const char *name2display);
+                      const char *name2open, const char *name2display);
 
 void export_stl(const shared_ptr<const Geometry> &geom, std::ostream &output);
 void export_off(const shared_ptr<const Geometry> &geom, std::ostream &output);
